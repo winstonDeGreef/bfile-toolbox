@@ -16,26 +16,27 @@ todo
   [x] generate these client side and use these to provide a bettor error message in handleStdLine when two different arrays provide different values
 [x] for list, output calculated each time list is finished
   [x] if values change, show user error
-[ ] make parisizemax and ?parisize? (probbably dont need to set this) configurable
-[ ] truncate bfile output
-[ ] edit bfiles after being created
+[x] make parisizemax and ?parisize? (probbably dont need to set this) configurable
+[x] truncate bfile output
+[x] edit bfiles after being created
 [ ] warn if edited by user note is added but no edits have been made
-[ ] warn if bfile generated is out of date
+ [ ] maybe more comprehensive checks?
 [ ]verify against data
 [ ] verify against pervious bfile
-[ ] add a_vector as synomym for lista
-[ ] fix bug that you cant edit main function input
-[ ] max container width
-[ ] bug with lista length cutoff? https://oeis.org/edit?seq=A354015
-[ ] stop button submits form
+[x] add a_vector as synomym for lista
+[x] fix bug that you cant edit main function input
+[x] max container width
+[x] bug with lista length cutoff? https://oeis.org/edit?seq=A354015
+[x] stop button submits form
 
 [ ] find bfiles with invalid type
+ [ ] if it is read by rows or antidiagonals => check that it is a whole number of rows
 [x] fix server error (only added a bypass)
 [ ] python support
-[ ] lookup values of other sequences
-[ ] automatically save bfile
-[ ] automatically gen bfile
-[ ] rename run2 button to run
+[x] lookup values of other sequences
+[x] automatically save bfile
+[ ] automatically gen bfile (not going to)
+[x] rename run2 button to run
 
 [ ] include warning whenever {{TEMPLATE}} syntax is used in user user suppliad input
 [ ] add documentation in page
@@ -49,3 +50,25 @@ todo
 [ ] check line length client side
 [ ] (LANG) should be case insensitive
 [ ]even if error, dont discard data
+
+[ ] turn vecmap into vecapply
+[ ] implement limit output properly
+[ ] link line formats
+ [ ] triangle
+    First 141 rows of Pascal's triangle, formatted as a simple linear sequence: (n, a(n)), n=0..10152.
+    T. D. Noe, Rows n = 0..100 of triangle, flattened
+    T. D. Noe, First 100 rows, flattened
+    Franklin T. Adams-Watters, First 200 rows, flattened
+    Robert Price, Table of n, a(n) for n = 1..15008 (rows n = 1..412, flattened)
+    Franklin T. Adams-Watters, Rows 1..1000, flattened
+    note previous: irregular triangle
+    T. D. Noe, Rows 0 to 100 of the triangle, flattened.
+    N. J. A. Sloane, Table of n, a(n) for n = 1..11325
+    Reinhard Zumkeller, Rows n = 1..10000 of triangle, flattened
+    note previous: irregular triangle
+    T. D. Noe, Rows 1 to 100 of triangle, flattened.
+    <page 10>
+    Andrew Howroyd, Table of n, a(n) for n = 1..1275
+    G. C. Greubel, Table of n, a(n) for the first 55 rows, flattened
+    David W. Wilson, Table of n, a(n) for n = 1..11731 (rows 1 through 26).
+    Nathaniel Johnston, Rows 0..100, flattened

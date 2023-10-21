@@ -14,7 +14,7 @@ export function run2(lang: "PARI", code: string, handleStdout: (text: string) =>
     ws.binaryType = "arraybuffer"
     ws.onopen = () => {
         console.log("oppened")
-        ws.send(textToUint8Array("stdin " + code))
+        sendStdin(code)
         ws.onmessage = (event) => {
             let data = event.data
             if (data instanceof ArrayBuffer) {
@@ -33,12 +33,19 @@ export function run2(lang: "PARI", code: string, handleStdout: (text: string) =>
         }
     }
 
+    function sendStdin(s: string) {
+        ws.send(textToUint8Array("stdin " + s))
+    }
+
     return {stop: () => {
-        ws.send(textToUint8Array("kill"))
-        setTimeout(_ => {
-            if (ws.readyState === WebSocket.OPEN) console.error("send kill but websocket still open")
-        }, 1000)
-    }}
+        console.trace("kill from where")
+            ws.send(textToUint8Array("kill"))
+            setTimeout(_ => {
+                if (ws.readyState === WebSocket.OPEN) console.error("send kill but websocket still open")
+            }, 1000)
+        },
+        sendStdin
+    }
 }
 
 export function run(lang, code) {

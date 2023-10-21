@@ -18,7 +18,8 @@
         <div><pre>{$status.stdout}</pre></div>
         <div><pre>{$status.stderr}</pre></div>
     </Tabs>
-{:else if $status.error}
+{/if}
+{#if $status.error}
     <h1>Status</h1>
     <p><strong>error</strong>: {$status.message}</p>
 {/if}

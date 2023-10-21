@@ -101,9 +101,10 @@ while (true) {
             handleStdReader("out", stdout, socket);
             handleStdReader("err", stderr, socket);
         
-            // process.status.then(_ => {
-            //     socket.close(0, "process exited")
-            // })
+            process.status.then(_ => {
+                socket.send("err proccess closed")
+                console.log("process closed")
+            })
         
             socket.addEventListener("message", (event) => {
                 let data = event.data;

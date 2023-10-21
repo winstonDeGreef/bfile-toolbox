@@ -2,6 +2,7 @@ import type { Writable } from "svelte/store";
 import type { ProgData } from "./data";
 import type { RunStatus } from "./Code.svelte";
 import { run2 } from "./run";
+import { ManyBfileWithProgress } from "./Bfile";
 
 class BufferedByLine {
     buffer = ""
@@ -39,6 +40,8 @@ export function startCode(data: ProgData, code: string, status: Writable<RunStat
         return
     }
     let result: {[i: number]: string} = {}
+    let checkResult = [] // different because unsorted if parallel
+    let checkedUpTo = data.checkSettings.checkStart
     let maxResultLength = 0
     let resultsCalculated = 0
     let statusInfoHTML = ""
@@ -57,24 +60,18 @@ export function startCode(data: ProgData, code: string, status: Writable<RunStat
             MyCancel(); 
         }
         if (s.startsWith("result ")) {
-            if (data.type === "explicit" || data.type === "list") {
-                let command = s.split(" ")
-                if (command.length !== 3) {
-                    status.set({running: false, error: true, message: "invalid result command: too many or too little spaces: " + s})
-                    cancel()
-                    return
-                }
-                let [_, i, v] = command
-                result[parseInt(i)] = v
-                maxResultLength = Math.max(maxResultLength, i.length + v.length + 1)
-                resultsCalculated++
-                updateSequentialResultCalculated()
-                statusInfoHTML = "results calculated: " + resultsCalculated + "<br>max result length: " + maxResultLength + "<br>current result length: " + (i.length + v.length + 1) + "<br>sequential results calculated: " + sequentialResultCalculated
-            } else {
-                status.set({running: false, error: true, message: "used result with non explicit type: " + data.type})
+            let command = s.split(" ")
+            if (command.length !== 3) {
+                status.set({running: false, error: true, message: "invalid result command: too many or too little spaces: " + s})
                 cancel()
                 return
             }
+            let [_, i, v] = command
+            result[parseInt(i)] = v
+            maxResultLength = Math.max(maxResultLength, i.length + v.length + 1)
+            resultsCalculated++
+            updateSequentialResultCalculated()
+            statusInfoHTML = "results calculated: " + resultsCalculated + "<br>max result length: " + maxResultLength + "<br>current result length: " + (i.length + v.length + 1) + "<br>sequential results calculated: " + sequentialResultCalculated
         } else if (s.startsWith("listresult ")) {
             let list = s.slice("listresult ".length)
             let listSplit = list.slice(1, list.length - 1).split(", ")
@@ -95,12 +92,43 @@ export function startCode(data: ProgData, code: string, status: Writable<RunStat
             let r = s.slice("listsize ".length)
             lastListSize = currentListSize
             currentListSize = r
+        } else if (s.startsWith("checkresult ")) {
+            let r = s.slice("checkresult ".length)
+            checkResult.push(r)
+            if ( isFinite(Number(r))) checkedUpTo = Math.max(checkedUpTo, Number(r))
+            if (checkResult.length - 2 + data.offset >= data.maxResult) {
+                MyCancel()
+            }
+            statusInfoHTML = "check results calculated: " + checkResult.length + "<br>checked up to: " + checkedUpTo
+        } else if (s.startsWith("checkupto ")) {
+            let r = s.slice("checkresult ".length)
+            if ( isFinite(Number(r))) checkedUpTo = Math.max(checkedUpTo, Number(r))
+            statusInfoHTML = "check results calculated: " + checkResult.length + "<br>checked up to: " + checkedUpTo
+        } else if (s.startsWith("loaddata ")) {
+            let r = s.slice("loaddata ".length)
+            let [seq, pos] = r.split(" ")
+            let posParsed = parseInt(pos)
+            let bfile = bfiledata["A" + seq.padStart(6, "0")]
+            let block = Math.floor(posParsed / data.bfileIdealTransferBlocksize) * data.bfileIdealTransferBlocksize
+            let startPos = bfile.offset + block
+            let toSend = `[${startPos}`
+            
+            for (let i = 0; i < data.bfileIdealTransferBlocksize && bfile.data[startPos + i]; i++) toSend += "," + bfile.data[startPos + i]
+            toSend += "]\n"
+            sendStdin(toSend)
+
         }
     }
 
     let stdOutBuffer = new BufferedByLine(handleStdLine)
     let stdout = "", stderr = ""
     function MyCancel() {
+        if (data.type === "check") {
+            checkResult.map(BigInt).sort()
+            for (let i = 0; i < checkResult.length; i++) {
+                result[i + data.offset] = checkResult[i]
+            }
+        }
         if (IThrowwedError) return
         cancel();
         console.log("DOOONe");
@@ -124,7 +152,40 @@ export function startCode(data: ProgData, code: string, status: Writable<RunStat
         stderr += s
         update()
     }
+
+    function downloadBfiles() {
+        if (!data.importBfilesFor.length) {
+            let returnValue = run2(data.lang, code, stdoutEvent, stderrEvent)
+            cancel = returnValue.stop
+            sendStdin = returnValue.sendStdin
+
+        }
+        let bfiles = new ManyBfileWithProgress(data.importBfilesFor)
+        let downloadCancel = () => {
+            bfiles.cancel()
+            status.set({running: true, error: false, stderr: "", stdout: "", cancel: downloadCancel, statusInfoHTML, result, done: true})
+        }
+        bfiles.progressStore.subscribe(progress => {
+            let statusHTML = `
+            downloading bfile of ${progress.currentSeq} ${progress.currentPos}/${progress.totalPos}...<br>
+            progress: ${progress.bytesCurrentDownloaded} bytes / ${progress.bytesCurrentTotal} (${progress.progressCurrent})
+            `
+            status.set({running: true, error: false, stderr: "", stdout: "", cancel: downloadCancel, statusInfoHTML: statusHTML, result, done: false})
+        })
+
+        bfiles.ondone(outp => {
+            bfiledata = outp
+            let statusHTML = `Starting code...`
+            let returnValue = run2(data.lang, code, stdoutEvent, stderrEvent)
+            cancel = returnValue.stop
+            sendStdin = returnValue.sendStdin
+            status.set({running: true, error: false, stderr: "", stdout: "", cancel: MyCancel, statusInfoHTML: statusHTML, result, done: false})
+        })
+        
+    }
     
-    let run2Return = run2(data.lang, code, stdoutEvent, stderrEvent)
-    let cancel = run2Return.stop
+    let cancel: ReturnType<typeof run2>["stop"]
+    let sendStdin: ReturnType<typeof run2>["sendStdin"]
+    let bfiledata: (typeof ManyBfileWithProgress)["prototype"]["outp"]
+    downloadBfiles()
 }
