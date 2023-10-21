@@ -50,6 +50,7 @@ todo
 [ ] check line length client side
 [ ] (LANG) should be case insensitive
 [ ]even if error, dont discard data
+[ ] bfile warning should say if the edit is in the code generated or only effects bfile generation
 
 [ ] turn vecmap into vecapply
 [ ] implement limit output properly

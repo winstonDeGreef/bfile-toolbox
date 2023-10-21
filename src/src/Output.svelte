@@ -59,7 +59,8 @@
 
     function createBfile() {
         $progData.timestamp = Date.now()
-        showingOldBfile = false
+        
+        setTimeout(_ => showingOldBfile = false, 0)
         unsaved = true
         let result = $status.result
         let truncate = $progData.shouldTruncate ? $progData.truncate : maxSequentialResult
