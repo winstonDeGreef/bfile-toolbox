@@ -20,7 +20,7 @@
         Max size type:
         <select id="toolbox--limit-size-type" bind:value={$progData.limit.maxIndex.type}>
             <option value="index">index</option>
-            <option value="antidiagonals">antidiagonals</option>
+            <option value="antidiagonals">antidiagonals/rows</option>
         </select>
     </label>
 </p>
@@ -34,7 +34,7 @@
 {:else if $progData.limit.maxIndex.type === 'antidiagonals'}
     <p>
         <label for="toolbox--limit-size-max-antidiagonal">
-            Max antidiagonal count: <input id="toolbox--limit-size-max-antidiagonal" type="number" bind:value={$progData.limit.maxIndex.maxAntidiaonal} min=0>
+            Max antidiagonal/row count: <input id="toolbox--limit-size-max-antidiagonal" type="number" bind:value={$progData.limit.maxIndex.maxAntidiaonal} min=0>
         </label>
     </p>
 {/if}
