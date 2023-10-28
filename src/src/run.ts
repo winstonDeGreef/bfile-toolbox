@@ -10,7 +10,7 @@ function Unint8ArrayToText(array: Uint8Array) {
 }   
 
 export function run2(lang: "PARI", code: string, handleStdout: (text: string) => void, handleStderr: (text: string) => void) {
-    const ws = new WebSocket("ws://localhost:8000/?command=gp")
+    const ws = new WebSocket("ws://localhost:3946/?command=gp")
     ws.binaryType = "arraybuffer"
     ws.onopen = () => {
         console.log("oppened")

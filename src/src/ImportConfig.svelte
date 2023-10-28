@@ -2,6 +2,7 @@
     import type { Writable } from "svelte/store";
     import { zodProgData, type ProgData } from "./data";
     import { joinFromLines } from "./LineSplitJson";
+    import { prevent_default } from "svelte/internal";
     
     export let progData: Writable<ProgData>
     let importIsOpen = false
@@ -49,6 +50,11 @@
             return
         }
     }
+
+    function copyConfig() {
+        let text = JSON.stringify($progData)
+        navigator.clipboard.writeText(text)
+    }
 </script>
 
 {#if importIsOpen}
@@ -66,7 +72,8 @@
 <button on:click|preventDefault={() => importIsOpen = !importIsOpen}>
     {importIsOpen ? "close import settings" : "open import settings"}
 </button>
-
+<br>
+<button on:click|preventDefault={copyConfig}>Copy current config to clipboard</button>
 <style>
     textarea {
         width: 100%;

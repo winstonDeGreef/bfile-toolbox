@@ -154,11 +154,16 @@ export function startCode(data: ProgData, code: string, status: Writable<RunStat
     }
 
     function downloadBfiles() {
+        let noMoreUpdates = false
         if (!data.importBfilesFor.length) {
+            let statusHTML = `Starting code...`
+            status.set({running: true, error: false, stderr: "", stdout: "", cancel: MyCancel, statusInfoHTML: statusHTML, result, done: false})
+            console.log("????????")
+            // noMoreUpdates=true
             let returnValue = run2(data.lang, code, stdoutEvent, stderrEvent)
             cancel = returnValue.stop
             sendStdin = returnValue.sendStdin
-
+            return
         }
         let bfiles = new ManyBfileWithProgress(data.importBfilesFor)
         let downloadCancel = () => {
@@ -166,6 +171,7 @@ export function startCode(data: ProgData, code: string, status: Writable<RunStat
             status.set({running: true, error: false, stderr: "", stdout: "", cancel: downloadCancel, statusInfoHTML, result, done: true})
         }
         bfiles.progressStore.subscribe(progress => {
+            if (noMoreUpdates) return
             let statusHTML = `
             downloading bfile of ${progress.currentSeq} ${progress.currentPos}/${progress.totalPos}...<br>
             progress: ${progress.bytesCurrentDownloaded} bytes / ${progress.bytesCurrentTotal} (${progress.progressCurrent})
@@ -175,11 +181,13 @@ export function startCode(data: ProgData, code: string, status: Writable<RunStat
 
         bfiles.ondone(outp => {
             bfiledata = outp
+            noMoreUpdates = true
             let statusHTML = `Starting code...`
+            status.set({running: true, error: false, stderr: "", stdout: "", cancel: MyCancel, statusInfoHTML: statusHTML, result, done: false})
+            console.log("set HTML")
             let returnValue = run2(data.lang, code, stdoutEvent, stderrEvent)
             cancel = returnValue.stop
             sendStdin = returnValue.sendStdin
-            status.set({running: true, error: false, stderr: "", stdout: "", cancel: MyCancel, statusInfoHTML: statusHTML, result, done: false})
         })
         
     }
