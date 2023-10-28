@@ -55,23 +55,25 @@
         let text = JSON.stringify($progData)
         navigator.clipboard.writeText(text)
     }
+
+    function importFromClipboard() {
+        navigator.clipboard.readText().then(text => {
+            importText = text
+            importSettings()
+        })
+    
+    }
 </script>
 
-{#if importIsOpen}
-    <h1>import settings</h1>
-    <p>Go to the bfile and copy and paste the settings from there (you can leave the newlines and "#"s in)</p>
-    <textarea bind:value={importText}></textarea><br>
-    <button on:click|preventDefault={importSettings}>Import</button>
-    {#if importCompleted}
-        <p>Import completed. <button on:click|preventDefault={() => {if (oldProgData) {$progData = oldProgData; importCompleted = true} }}>Undo import</button></p>
-    {:else}
-        <h3>Errors while importing</h3>
-        <pre><code>{errorText}</code></pre>
-    {/if}
+<h1>Import / export</h1>
+<p>Go to the bfile and copy and paste the settings from there (you can leave the newlines and "#"s in)</p>
+<button on:click|preventDefault={importFromClipboard}>Import config from clipboard</button>
+{#if importCompleted}
+    <p>Import completed. <button on:click|preventDefault={() => {if (oldProgData) {$progData = oldProgData; importCompleted = true} }}>Undo import</button></p>
+{:else if errorText}
+    <h3>Errors while importing</h3>
+    <pre><code>{errorText}</code></pre>
 {/if}
-<button on:click|preventDefault={() => importIsOpen = !importIsOpen}>
-    {importIsOpen ? "close import settings" : "open import settings"}
-</button>
 <br>
 <button on:click|preventDefault={copyConfig}>Copy current config to clipboard</button>
 <style>
