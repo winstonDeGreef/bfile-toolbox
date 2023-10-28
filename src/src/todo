@@ -52,6 +52,9 @@ todo
 [ ]even if error, dont discard data
 [ ] bfile warning should say if the edit is in the code generated or only effects bfile generation
 
+[ ] BEFORE PUBLISHING: put memoize client side
+
+
 [ ] turn vecmap into vecapply
 [ ] implement limit output properly
 [ ] link line formats
