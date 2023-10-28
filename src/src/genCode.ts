@@ -1,11 +1,13 @@
 import { Bfile } from "./Bfile"
 import type { DataUnit } from "./DataSizeInput.svelte"
 import type { COMPUTE_TYPE, LengthGuessAlgorithm, ProgData } from "./data"
+import pariMemoizeLib from "./pariMemoizeLib"
 
 const PARI_BASE = (
 `
 default(parisize,    {PARISIZE});
 default(parisizemax, {PARISIZEMAX});
+
 {CODE}
 {LOOP}
 `)
@@ -83,8 +85,8 @@ a(n) = {
 }
 `
 
-const INCLUDE_MEMOIZE = `read("memoize.gp")
-`
+const INCLUDE_MEMOIZE = pariMemoizeLib
+const INCLUDE_MEMOIZE_SHORT = `\\\\ <memoize code> (press the view full code button below to see the generated code including libraries)`
 
 const LOAD_A = `
 OEISSequenceData = Map()
@@ -132,7 +134,7 @@ function formatLengthFromLengthGuessAlgorithm(algo: LengthGuessAlgorithm, offset
     
 }
 
-export function genPari(code: string, main: string, type: COMPUTE_TYPE, offset: number, progData: ProgData) {
+export function genPari(code: string, main: string, type: COMPUTE_TYPE, offset: number, progData: ProgData, shortened = true) {
     if (!type) return ""
     if (!["list", "explicit", "check", "table explicit"].includes(type)) throw new Error("unimplemented type:" + type)
     let loop = {list: LIST_LOOP, explicit: EXPLICIT_LOOP, check: CHECK_LOOP, "table explicit": EXPLICIT_LOOP}[type]
@@ -158,7 +160,7 @@ export function genPari(code: string, main: string, type: COMPUTE_TYPE, offset: 
             .replaceAll("{MAXOFFSET}", progDataToMaxIndex(progData).toString())
             .replaceAll("{MAIN}", main)
             .replaceAll("{STARTCHECK}", progData.checkSettings.checkStart.toString())
-            .replaceAll("{CODE}", (progData.langSettings.pari.includeMemoize ? INCLUDE_MEMOIZE : "") + code)
+            .replaceAll("{CODE}", (progData.langSettings.pari.includeMemoize ? (shortened ? INCLUDE_MEMOIZE_SHORT : INCLUDE_MEMOIZE) : "") + code)
             .replaceAll("{OFFSET}", offset.toString())
     if (type === "list") result = result.replaceAll("{SIZES}", formatLengthFromLengthGuessAlgorithm(progData.listSettings.lengthGuessAlgorithm, offset))
     return result.trim() + "\n"

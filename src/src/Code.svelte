@@ -119,6 +119,14 @@
     let offset = Number(document.getElementById("edit_Offset").innerText.split(",")[0])
     $: $progData.offset = offset
     $: resultingCode= genPari($progData.code, $progData.main, $progData.type, offset, $progData)
+    $: fullCode = genPari($progData.code, $progData.main, $progData.type, offset, $progData, false)
+
+    function openFullCodeInNewTab() {
+        let blob = new Blob([fullCode], {type: "text/plain"})
+        let url = URL.createObjectURL(blob)
+        window.open(url, "_blank")
+        setTimeout(() => URL.revokeObjectURL(url), 10000)
+    }
 </script>
 
 <!-- inputs -->
@@ -184,8 +192,12 @@
     
     <h1>Generated code:</h1>
     <code class="code"><pre>{resultingCode}</pre></code>
+    <button on:click|preventDefault={() => console.log({fullCode, resultingCode})}>test</button>
+    {#if resultingCode !== fullCode}
+        <p>The code shown above is a shortened version (not including any libraries). <button on:click|preventDefault={openFullCodeInNewTab}>View entire code in new tab</button></p>
+    {/if}
     <h1>Run</h1>
-    <button on:click|preventDefault={() => startCode($progData, resultingCode, runStatus)}>run</button>
+    <button on:click|preventDefault={() => startCode($progData, fullCode, runStatus)}>run</button>
     
     <Status bind:status={runStatus}/>
     <Output status={runStatus} {progData}/>
