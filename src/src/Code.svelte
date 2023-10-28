@@ -34,6 +34,7 @@
     import ImportBfile from "./ImportBfile.svelte";
     import Limit from "./Limit.svelte";
     import { events } from "./Events";
+    import ImportConfig from "./ImportConfig.svelte";
     let id = nextId++
     const VALID_LANGS = ["PARI"]
     const FUNC_MAP:{[func: string]: COMPUTE_TYPE} = {a: "explicit", lista: "list", vector_a: "list", isok: "check", T: "table explicit"}
@@ -126,6 +127,8 @@
 <!-- type: dropdown, explicit or list -->
 <!-- main function: text -->
 <div class="container">
+    <br>
+    <ImportConfig {progData}/><br><br>
 
     <label for="lang-{id}">Language:
         <select id="lang-{id}" bind:value={$progData.lang}>

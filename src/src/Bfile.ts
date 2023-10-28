@@ -8,10 +8,12 @@ export class Bfile {
     loading = true
     data?: ReturnType<typeof Bfile.parsebfile>
     subscribers: BfileListener[]
-    constructor(public readonly id: string) {
+    plaintext?: string
+    constructor(public readonly id: string, parse = true) {
         if (!id.match(/A\d{6|7}/)) return
         fetch("https://oeis.org/" + id + "/b" + id.slice(1) + ".txt").then(res => res.text()).then(text => {
-            this.data = Bfile.parsebfile(text)
+            this.plaintext = text
+            if (parse) this.data = Bfile.parsebfile(text)
             this.loading = false
             this.subscribers.forEach(fn => fn(this.data))
         })

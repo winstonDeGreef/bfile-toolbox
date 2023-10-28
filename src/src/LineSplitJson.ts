@@ -8,5 +8,5 @@ export function splitIntoLines(s: string, maxLength: number) {
 }
 
 export function joinFromLines(s: string) {
-    return s.replaceAll("\n# ", "")
+    return  s.replaceAll(/(\n|^)\# /g, "")
 }

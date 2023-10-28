@@ -1,85 +1,11 @@
 import { writable } from "svelte/store"
 import type { DataUnit } from "./DataSizeInput.svelte"
-import type { ProgDataV0_0_0_1 } from "./datav0.0.0.1"
-import { errorToast } from "./toast"
-import {ZodError, z as zod} from "zod"
 
 export type LANG = "PARI"
-
 export type LANG_OPTIONAL = LANG | ""
 export type COMPUTE_TYPE = "list" | "explicit" | "check" | "table explicit"
 
-function upgrade(prev: ProgDataV0_0_0_1): ProgData {
-    errorToast("importing from version 0.0.0.1 isn't supported because this was the general version used in development and has too many differences.")
-    throw new Error("upgrading from version")
-}
-let parseErrors = []
-
-let zodComputeType = zod.enum(["list", "explicit", "check", "table explicit"])
-
-let zodListSettings = zod.object({
-    lengthGuessAlgorithm: zod.object({
-        type: zod.enum(["linear", "custom"]),
-        start: zod.number(),
-        increment: zod.number(),
-        customGuesses: zod.array(zod.number())
-    })
-})
-
-let zodDataUnit = zod.enum(["b", "kb", "mb", "gb"])
-
-export let zodProgData = zod.object({
-    lang: zod.enum(["PARI", ""]),
-    code: zod.string(),
-    type: zodComputeType,
-    main: zod.string(),
-    offset: zod.number(),
-    truncate: zod.number(),
-    shouldTruncate: zod.boolean(),
-    version: zod.literal("0.1"),
-    includeHeader: zod.boolean(),
-    sequenceId: zod.string(),
-    listSettings: zodListSettings,
-    checkSettings: zod.object({
-        checkStart: zod.number(),
-    }),
-    tableSettings: zod.object({
-        xoffset: zod.number(),
-        yoffset: zod.number(),
-        type: zod.enum(["triangle", "square"]),
-        squareUpward: zod.boolean(),
-    }),
-    langSettings: zod.object({
-        pari: zod.object({
-            parisize: zod.object({
-                amount: zod.number(),
-                unit: zodDataUnit
-            }),
-            parisizemax: zod.object({
-                amount: zod.number(),
-                unit: zodDataUnit
-            }),
-            includeMemoize: zod.boolean()
-        })
-    }),
-    maxResult: zod.number(),
-    importBfilesFor: zod.array(zod.string()),
-    bfileIdealTransferBlocksize: zod.number(),
-    timestamp: zod.number(),
-    limit: zod.object({
-        maxLineLength: zod.number(),
-        maxIndex: zod.object({
-            type: zod.enum(["antidiagonals", "index"]),
-            maxAntidiaonal: zod.number(),
-            maxIndex: zod.number()
-        })
-    })
-})
-
-export type ProgData = zod.infer<typeof zodProgData>
-
-
-export type ProgData2 = {
+export type ProgDataV0_0_0_1 = {
     lang: LANG_OPTIONAL,
     code: string,
     type: COMPUTE_TYPE,
@@ -87,7 +13,7 @@ export type ProgData2 = {
     offset: number
     truncate: number,
     shouldTruncate: boolean,
-    version: "0.1",
+    version: "0.0.0.1",
     includeHeader: boolean,
     sequenceId: string,
     listSettings: ListSettings
@@ -161,7 +87,7 @@ export function getStores() {
             offset: 0,
             truncate: 0,
             shouldTruncate: false,
-            version: "0.1",
+            version: "0.0.0.1",
             sequenceId: document.getElementsByName("seq")[0].value || "",
             includeHeader: true,
             listSettings: {
@@ -169,7 +95,6 @@ export function getStores() {
                     type: "linear",
                     start: 100,
                     increment: 100,
-                    customGuesses: []
                 }
             },
             checkSettings: {
