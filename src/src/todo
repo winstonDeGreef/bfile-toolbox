@@ -53,7 +53,7 @@ todo
 [ ] bfile warning should say if the edit is in the code generated or only effects bfile generation
 
 [ ] BEFORE PUBLISHING: put memoize client side
-
+[ ] accordion for most sections
 
 [ ] turn vecmap into vecapply
 [ ] implement limit output properly
