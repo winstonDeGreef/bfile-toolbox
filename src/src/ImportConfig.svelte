@@ -12,7 +12,7 @@
     let importCompleted = false
     function importSettings() {
         errorText = ""
-        let importCompleted = false
+        importCompleted = false
         let data: unknown
         try {
             console.log(joinFromLines(importText))
@@ -45,6 +45,7 @@
             oldProgData = $progData
             $progData = parsed
             importCompleted = true
+            console.log("imported!", {importCompleted})
         } else {
             errorText = "while trying to parse the settings, the following issues were encountered: " + r.error.issues.map(issue => `${issue.path.join(".")}: ${issue.message}`).join("\n\n")
             return
@@ -69,7 +70,7 @@
 <p>Go to the bfile and copy and paste the settings from there (you can leave the newlines and "#"s in)</p>
 <button on:click|preventDefault={importFromClipboard}>Import config from clipboard</button>
 {#if importCompleted}
-    <p>Import completed. <button on:click|preventDefault={() => {if (oldProgData) {$progData = oldProgData; importCompleted = true} }}>Undo import</button></p>
+    <p>Import completed. <button on:click|preventDefault={() => {if (oldProgData) {$progData = oldProgData; importCompleted = false} }}>Undo import</button></p>
 {:else if errorText}
     <h3>Errors while importing</h3>
     <pre><code>{errorText}</code></pre>
