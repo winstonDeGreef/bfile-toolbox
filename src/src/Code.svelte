@@ -24,7 +24,7 @@
 	import { writable, type Writable } from "svelte/store";
     import type { COMPUTE_TYPE, LANG, LANG_OPTIONAL, ProgData } from "./data"
     import { genPari } from "./genCode";
-    import { run, run2 } from "./run";
+    import { run, run2, serverIsValid } from "./run";
     import Status from "./Status.svelte";
     import { startCode } from "./startCode";
     import Output from "./Output.svelte";
@@ -127,6 +127,9 @@
         window.open(url, "_blank")
         setTimeout(() => URL.revokeObjectURL(url), 10000)
     }
+
+    let server = "http://localhost:3946"
+    let checkServerAgain = 0
 </script>
 
 <!-- inputs -->
@@ -192,12 +195,24 @@
     
     <h1>Generated code:</h1>
     <code class="code"><pre>{resultingCode}</pre></code>
-    <button on:click|preventDefault={() => console.log({fullCode, resultingCode})}>test</button>
     {#if resultingCode !== fullCode}
         <p>The code shown above is a shortened version (not including any libraries). <button on:click|preventDefault={openFullCodeInNewTab}>View entire code in new tab</button></p>
     {/if}
     <h1>Run</h1>
-    <button on:click|preventDefault={() => startCode($progData, fullCode, runStatus)}>run</button>
+    <label for="toolbox--server">Server: <input id="toolbox--server" bind:value={server}></label>
+    {#await serverIsValid(server, checkServerAgain)}
+        <p>Checking if server is valid...</p>
+    {:then check}
+        {#if !check.error}
+            <p>Server is valid</p>
+        {:else}
+            <p style="color: red">{check.message}</p>
+        {/if}
+    {:catch e}
+        <p style="color: red">Internal error while checking if server is valid.</p>
+    {/await}
+    <button on:click|preventDefault={() => checkServerAgain = Date.now()}>Check server again</button><br>
+    <button on:click|preventDefault={() => startCode($progData, fullCode, runStatus, server)}>run</button>
     
     <Status bind:status={runStatus}/>
     <Output status={runStatus} {progData}/>

@@ -75,61 +75,66 @@ function main(port: number) {
             return response;
     
         }
-    
-        const command = new Deno.Command(commandStr, {
-            args,
-            stdin: "piped",
-            stdout: "piped",
-            stderr: "piped",
-        });
-        const process = command.spawn();
-        
-    
-        const stdin = process.stdin.getWriter();
-        const stdout = process.stdout.getReader();
-        const stderr = process.stderr.getReader();
-        
-    
+
         const { socket, response } = Deno.upgradeWebSocket(req);
-        socket.binaryType = "arraybuffer";
+
+        socket.onopen = () => {
+            const command = new Deno.Command(commandStr, {
+                args,
+                stdin: "piped",
+                stdout: "piped",
+                stderr: "piped",
+            });
+            const process = command.spawn();
+            
         
-    
-        handleStdReader("out", stdout, socket);
-        handleStdReader("err", stderr, socket);
-    
-        process.status.then(_ => {
-            socket.send("err proccess closed")
-            console.log("process closed")
-            // would kill, but this causes an internal error in deno
-        })
-    
-        socket.addEventListener("message", (event) => {
-            let data = event.data;
-            if (!(data instanceof ArrayBuffer)) {
-                socket.send(
-                    "err invalid message type. expected ArrayBuffer, got" +
-                    data.constructor.name,
-                );
-                return;
-            }
-    
-            let binary = new Uint8Array(data);
-    
-            if (binaryIsText(binary, "kill")) {
-                process.kill();
-            } else if (binaryMatchesStart(binary, "stdin")) {
-                let payload = binary.slice("stdin ".length);
-    
-                stdin.write(payload).catch((err) => {
+            const stdin = process.stdin.getWriter();
+            const stdout = process.stdout.getReader();
+            const stderr = process.stderr.getReader();
+            
+        
+            socket.binaryType = "arraybuffer";
+            
+        
+            handleStdReader("out", stdout, socket);
+            handleStdReader("err", stderr, socket);
+
+            process.status.then(_ => {
+                socket.send("err proccess closed")
+                console.log("process closed")
+                // would kill, but this causes an internal error in deno
+            })
+        
+            socket.addEventListener("message", (event) => {
+                let data = event.data;
+                if (!(data instanceof ArrayBuffer)) {
                     socket.send(
-                        "err tried to write to stdin, but it failed: " + JSON.stringify(err),
+                        "err invalid message type. expected ArrayBuffer, got" +
+                        data.constructor.name,
                     );
-                });
-            } else {
-                socket.send("err message was not kill or does not start with stdin");
-            }
-        });
+                    return;
+                }
+        
+                let binary = new Uint8Array(data);
+        
+                if (binaryIsText(binary, "kill")) {
+                    process.kill();
+                } else if (binaryMatchesStart(binary, "stdin")) {
+                    let payload = binary.slice("stdin ".length);
+        
+                    stdin.write(payload).catch((err) => {
+                        socket.send(
+                            "err tried to write to stdin, but it failed: " + JSON.stringify(err),
+                        );
+                    });
+                } else {
+                    socket.send("err message was not kill or does not start with stdin");
+                }
+            });
+        }
+
     
+        
         return response;
     });    
 }

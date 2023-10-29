@@ -7,10 +7,67 @@ function textToUint8Array(text: string) {
 
 function Unint8ArrayToText(array: Uint8Array) {
     return new TextDecoder().decode(array);
-}   
+}
 
-export function run2(lang: "PARI", code: string, handleStdout: (text: string) => void, handleStderr: (text: string) => void) {
-    const ws = new WebSocket("ws://localhost:3946/?command=gp")
+function randomHex(length: number) {
+    let result = ""
+    for (let i = 0; i < length; i++) {
+        result += Math.floor(Math.random() * 16).toString(16)
+    }
+    return result
+}
+
+export function serverIsValid(server: string, _: any): Promise<{error: boolean, message: string}> {
+    return new Promise(res => {
+        let hex = randomHex(8)
+        let url = createUrl(server, "echo", [hex]);
+        const ws = new WebSocket(url);
+        ws.binaryType = "arraybuffer"
+
+        let timeout = setTimeout(() => res({error: true, message: "Server took too long to respond."}), 3000)
+        let errorTimeout: null | number = null
+        let noMessageTimeout:null|number = null
+        ws.onopen = () => {
+            clearTimeout(timeout)
+            noMessageTimeout = setTimeout(() => {
+                res({error: true, message: "Server took too long to send a message."})
+            }, 1000);
+        }
+
+        ws.onmessage = (event) => {
+            if (noMessageTimeout !== null) clearTimeout(noMessageTimeout)
+            if (errorTimeout === null) setTimeout(() => res({error: true, message: "Server responded with incorrect message."}), 1000)
+            if (event.data instanceof ArrayBuffer) {
+                let binary = new Uint8Array(event.data)
+                let text = Unint8ArrayToText(binary)
+                if (text.includes(hex)) {
+                    console.log("success")
+                    res({error: false, message: "Server is valid."})
+                }
+            }
+        }
+
+        ws.onerror = e => {
+            res({
+                error: true,
+                message: "There was an error connecting to the server."
+            })
+        }
+    })
+}
+
+function createUrl(server: string, command: string, args: string[] = []) {
+    let url = new URL(server);
+    url.protocol = "ws:";
+    url.searchParams.set("command", command);
+    args.forEach((arg, index) => {
+        url.searchParams.set("arg" + index, arg);
+    })
+    return url;
+}
+
+export function run2(lang: "PARI", code: string, handleStdout: (text: string) => void, handleStderr: (text: string) => void, server: string) {
+    const ws = new WebSocket(createUrl(server, "gp"))
     ws.binaryType = "arraybuffer"
     ws.onopen = () => {
         console.log("oppened")

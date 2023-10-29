@@ -34,7 +34,7 @@ function resultLineMaxLength(result: {[i: number]: string}) {
     return max
 }
 
-export function startCode(data: ProgData, code: string, status: Writable<RunStatus>) {
+export function startCode(data: ProgData, code: string, status: Writable<RunStatus>, server: string) {
     if (!data.lang) {
         status.set({running: false, error: true, message: "no language selected"})
         return
@@ -160,7 +160,7 @@ export function startCode(data: ProgData, code: string, status: Writable<RunStat
             status.set({running: true, error: false, stderr: "", stdout: "", cancel: MyCancel, statusInfoHTML: statusHTML, result, done: false})
             console.log("????????")
             // noMoreUpdates=true
-            let returnValue = run2(data.lang, code, stdoutEvent, stderrEvent)
+            let returnValue = run2(data.lang, code, stdoutEvent, stderrEvent, server)
             cancel = returnValue.stop
             sendStdin = returnValue.sendStdin
             return
@@ -185,7 +185,7 @@ export function startCode(data: ProgData, code: string, status: Writable<RunStat
             let statusHTML = `Starting code...`
             status.set({running: true, error: false, stderr: "", stdout: "", cancel: MyCancel, statusInfoHTML: statusHTML, result, done: false})
             console.log("set HTML")
-            let returnValue = run2(data.lang, code, stdoutEvent, stderrEvent)
+            let returnValue = run2(data.lang, code, stdoutEvent, stderrEvent, server)
             cancel = returnValue.stop
             sendStdin = returnValue.sendStdin
         })
