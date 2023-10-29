@@ -139,6 +139,7 @@
 <!-- main function: text -->
 <div class="container">
     <br>
+    <a href="https://github.com/winstonDeGreef/bfile-toolbox/blob/main/feedback.md" target="_blank">Give feeback on bfile toolbox (opens in new tab.)</a>
     <ImportConfig {progData}/><br><br>
     <h1>Code</h1>
     <label for="lang-{id}">Language:
