@@ -212,7 +212,7 @@
         <p style="color: red">Internal error while checking if server is valid.</p>
     {/await}
     <button on:click|preventDefault={() => checkServerAgain = Date.now()}>Check server again</button><br>
-    <button on:click|preventDefault={() => startCode($progData, fullCode, runStatus, server)}>run</button>
+    <button on:click|preventDefault={() => startCode($progData, progData, fullCode, runStatus, server)}>run</button>
     
     <Status bind:status={runStatus}/>
     <Output status={runStatus} {progData}/>

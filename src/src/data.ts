@@ -129,11 +129,12 @@ export let zodProgData = zod.object({
             maxAntidiaonal: zod.number(),
             maxIndex: zod.number()
         })
-    })
+    }),
+    bfileHashes: zod.object({}).catchall(zod.string())
 })
 
 export type ProgData = zod.infer<typeof zodProgData>
-
+// type other = ProgData["bfileHashes"]
 
 export type ProgData2 = {
     lang: LANG_OPTIONAL,
@@ -277,6 +278,7 @@ export function getStores() {
             importBfilesFor: [],
             bfileIdealTransferBlocksize: 100,
             timestamp: 0,
+            bfileHashes: {},
         }),
     }
 }

@@ -1,4 +1,4 @@
-import type { Writable } from "svelte/store";
+import { get, type Writable } from "svelte/store";
 import type { ProgData } from "./data";
 import type { RunStatus } from "./Code.svelte";
 import { run2 } from "./run";
@@ -33,8 +33,24 @@ function resultLineMaxLength(result: {[i: number]: string}) {
     }
     return max
 }
+function sha256Hash(text: string) {
+    let buffer = new TextEncoder().encode(text)
+    return crypto.subtle.digest("SHA-256", buffer).then(hash => {
+        let hexCodes = []
+        let view = new DataView(hash)
+        for (let i = 0; i < view.byteLength; i += 4) {
+            let value = view.getUint32(i)
+            let stringValue = value.toString(16)
+            let padding = "00000000"
+            let paddedValue = (padding + stringValue).slice(-padding.length)
+            hexCodes.push(paddedValue)
+        }
+        return hexCodes.join("")
+    })
+}
 
-export function startCode(data: ProgData, code: string, status: Writable<RunStatus>, server: string) {
+
+export function startCode(data: ProgData, dataStore: Writable<ProgData>, code: string, status: Writable<RunStatus>, server: string) {
     if (!data.lang) {
         status.set({running: false, error: true, message: "no language selected"})
         return
@@ -181,6 +197,15 @@ export function startCode(data: ProgData, code: string, status: Writable<RunStat
 
         bfiles.ondone(outp => {
             bfiledata = outp
+            // save hashes to progData
+            for (let key of Object.keys(outp)) {
+                let bfile = outp[key]
+                sha256Hash(bfile.source).then(hash => {
+                    let currentProgData = get(dataStore)
+                    currentProgData.bfileHashes[key] = hash
+                    dataStore.set(currentProgData)
+                })
+            }
             noMoreUpdates = true
             let statusHTML = `Starting code...`
             status.set({running: true, error: false, stderr: "", stdout: "", cancel: MyCancel, statusInfoHTML: statusHTML, result, done: false})

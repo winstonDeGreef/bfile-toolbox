@@ -30,7 +30,8 @@ export class Bfile {
         })
         return {
             offset: parseInt(linesSplit[0][0]),
-            data, 
+            data,
+            source: text
         }
     }
 
