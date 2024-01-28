@@ -128,7 +128,7 @@
         setTimeout(() => URL.revokeObjectURL(url), 10000)
     }
 
-    let server = "http://localhost:3946"
+    let server = "ws://localhost:25632"
     let checkServerAgain = 0
 </script>
 

@@ -139,7 +139,7 @@ function main(port: number) {
     });    
 }
 
-const defaultPort = 3946
+const defaultPort = 25632
 let port = defaultPort
 
 while (true) {
