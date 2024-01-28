@@ -136,7 +136,7 @@
 <!-- lang: dropdown, select between empty and PARI -->
 <!-- code: textarea -->
 <!-- type: dropdown, explicit or list -->
-<!-- main function: text -->
+<!-- main function: text --> 
 <div class="container">
     <br>
     <a href="https://github.com/winstonDeGreef/bfile-toolbox/blob/main/feedback.md" target="_blank">Give feeback on bfile toolbox (opens in new tab.)</a>

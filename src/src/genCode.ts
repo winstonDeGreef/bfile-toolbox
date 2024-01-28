@@ -86,7 +86,7 @@ a(n) = {
 `
 
 const INCLUDE_MEMOIZE = pariMemoizeLib
-const INCLUDE_MEMOIZE_SHORT = `\\\\ <memoize code> (press the view full code button below to see the generated code including libraries)`
+const INCLUDE_MEMOIZE_SHORT = `\\\\ <memoize code> (press the view full code button below to see the generated code including libraries\n`
 
 const LOAD_A = `
 OEISSequenceData = Map()

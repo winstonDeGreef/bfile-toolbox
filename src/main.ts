@@ -3,7 +3,7 @@ let container = document.createElement('div');
 // add target after end of element #add_upload
 let el = document.getElementById('add_upload')
 if (!el) {
-	alert("BFile toolbox: catastrophic error, couldn't find the upload button.")
+	// alert("BFile toolbox: catastrophic error, couldn't find the upload button.")
 	throw ""
 }
 el.insertAdjacentElement('afterend', container);

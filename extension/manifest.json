@@ -17,5 +17,10 @@
             "matches": ["https://oeis.org/*"],
             "resources": ["*"]
         }
-    ]
+    ],
+    "browser_specific_settings": {
+        "gecko": {
+            "id": "{f2652d86-6528-4c49-a75c-9a4377388a99}"
+        }
+    }
 }

@@ -38,12 +38,22 @@ function sha256Hash(text: string) {
     return crypto.subtle.digest("SHA-256", buffer).then(hash => {
         let hexCodes = []
         let view = new DataView(hash)
-        for (let i = 0; i < view.byteLength; i += 4) {
-            let value = view.getUint32(i)
-            let stringValue = value.toString(16)
-            let padding = "00000000"
-            let paddedValue = (padding + stringValue).slice(-padding.length)
-            hexCodes.push(paddedValue)
+        // return as base64
+        let binaryString = ""
+        for (let i = 0; i < hash.byteLength; i++) {
+            binaryString += String.fromCharCode(view.getUint8(i))
+        }
+        return btoa(binaryString)
+    })
+}
+function sha256HashHex(text: string) {
+    let buffer = new TextEncoder().encode(text)
+    return crypto.subtle.digest("SHA-256", buffer).then(hash => {
+        let hexCodes = []
+        let view = new DataView(hash)
+        // return as hex
+        for (let i = 0; i < hash.byteLength; i++) {
+            hexCodes.push(view.getUint8(i).toString(16).padStart(2, "0"))
         }
         return hexCodes.join("")
     })
@@ -124,7 +134,14 @@ export function startCode(data: ProgData, dataStore: Writable<ProgData>, code: s
             let r = s.slice("loaddata ".length)
             let [seq, pos] = r.split(" ")
             let posParsed = parseInt(pos)
-            let bfile = bfiledata["A" + seq.padStart(6, "0")]
+            let seqFull = "A" + seq.padStart(6, "0")
+            let bfile = bfiledata[seqFull]
+            if (posParsed < bfile.offset) {
+                status.set({running: false, error: true, message: `script requested value with index ${posParsed} from sequence ${seqFull}, but the sequence offset is ${bfile.offset}`})
+                IThrowwedError = true
+                MyCancel()
+                return
+            }
             let block = Math.floor(posParsed / data.bfileIdealTransferBlocksize) * data.bfileIdealTransferBlocksize
             let startPos = bfile.offset + block
             let toSend = `[${startPos}`

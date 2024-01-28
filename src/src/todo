@@ -35,7 +35,6 @@ todo
 [ ] python support
 [x] lookup values of other sequences
 [x] automatically save bfile
-[ ] automatically gen bfile (not going to)
 [x] rename run2 button to run
 
 [ ] include warning whenever {{TEMPLATE}} syntax is used in user user suppliad input
@@ -49,10 +48,11 @@ todo
 [ ] loop function type that gives all the controll to the fuction
 [ ] check line length client side
 [ ] (LANG) should be case insensitive
-[ ]even if error, dont discard data
+[ ] even if error, dont discard data
 [ ] bfile warning should say if the edit is in the code generated or only effects bfile generation
 
-[ ] BEFORE PUBLISHING: put memoize client side
+[x] BEFORE PUBLISHING: put memoize client side
+[ ] if server requests bfile part that doesn't exist, show user error
 [ ] accordion for most sections
 
 [ ] turn vecmap into vecapply
@@ -76,3 +76,7 @@ todo
     G. C. Greubel, Table of n, a(n) for the first 55 rows, flattened
     David W. Wilson, Table of n, a(n) for n = 1..11731 (rows 1 through 26).
     Nathaniel Johnston, Rows 0..100, flattened
+
+[ ] make linear guess algorithm not be hardcoded
+[ ] despaghetify the run code
+[ ] automatically detect if memoize should be included

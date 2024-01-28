@@ -1,0 +1,1 @@
+To build, go to the root directory and run `npm i` and then `npm run dev`. The build will show up in /public/build. Afterwards, the build is moved into extension/version/0.1
