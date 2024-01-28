@@ -81,4 +81,4 @@ todo
 [ ] despaghetify the run code
 [ ] automatically detect if memoize should be included
 [x] change default port, and make the server ws:
-[ ] document default port
+[x] document default port
